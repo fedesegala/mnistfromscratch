@@ -13,8 +13,8 @@ def main():
 
     nn = NeuralNetwork.initialize(
         input_size=64,
-        hidden_layer_sizes=[100],
-        output_size=3,
+        hidden_layer_sizes=[20,25],
+        output_size=10,
         eta=0.01,
     )
 
