@@ -13,16 +13,14 @@ class NeuralNetwork:
     h:          List[List[np.ndarray]]
     d:          List[np.ndarray]
     lr:         float
-    batch_size: int
     x_train:    Optional[np.ndarray] = None
     x_test:     Optional[np.ndarray] = None
     y_train:    Optional[np.ndarray] = None
     y_test:     Optional[np.ndarray] = None
-    current_batch_expected: List[np.ndarray] = None
 
 
     @classmethod
-    def initialize(cls, input_size: int, hidden_layer_sizes: List[int], output_size:int, lr: float, batch_size: int = 3) -> "NeuralNetwork":
+    def initialize(cls, input_size: int, hidden_layer_sizes: List[int], output_size:int, lr: float) -> "NeuralNetwork":
         weights = []
         previous_size = input_size
         for h_size in hidden_layer_sizes:
@@ -39,46 +37,38 @@ class NeuralNetwork:
             h=[],
             d=[],
             lr=lr,
-            batch_size=batch_size,
         )
 
     def forward(self, x: np.ndarray) -> np.ndarray:
-        self.h.append([])
-        self.V.append([])
-        self.V[-1].append(x)
+        self.h = []
+        self.V = []
+
+        self.V.append(x)
 
         for i,layer in enumerate(self.w):
             x = np.append(x, -1.0)
             h_i = layer.dot(x) # z = w*x
-            self.h[-1].append(h_i)
+            self.h.append(h_i)
             x = _sigmoid(h_i)
-            self.V[-1].append(x)
+            self.V.append(x)
 
-        return self.V
+        return self.V[-1]
 
     def compute_deltas(self, y: np.ndarray) -> List[np.ndarray]:
-        jobs = []
         self.d = []
+        computed_delta = compute_single_delta_task(self.h, self.V, self.w, y)
 
-        for input_sample_idx, sample_target in enumerate(self.current_batch_expected):
-            parallel_h = self.h[input_sample_idx]
-            parallel_v = self.V[input_sample_idx]
-
-
-            computed_delta = compute_single_delta_task(parallel_h, parallel_v, self.w, sample_target)
-            self.d.append([d for d in reversed(computed_delta)])
+        for d in reversed(computed_delta):
+            self.d.append(d)
 
         return self.d
 
     def update_weights(self):
-        for i in range(len(self.V)):
-            V = self.V[i]
-            d = self.d[i]
-            for m in reversed(range(len(V))):
-                if m == 0:
-                    break
-                v = np.append(V[m-1], -1)
-                self.w[m-1] += self.lr * np.outer(d[m-1], v)
+        for m in reversed(range(len(self.V))):
+            if m == 0:
+                break
+            v = np.append(self.V[m-1], -1)
+            self.w[m-1] += self.lr * np.outer(self.d[m-1], v)
 
     def train(self, epochs, x_train, x_test, y_train, y_test):
         self.x_train, self.x_test = x_train, x_test
@@ -88,19 +78,9 @@ class NeuralNetwork:
         self.y_test = one_hot_encode(y_test, n_classes)
 
         for epoch in range(epochs):
-            for start in range(0, len(x_train), self.batch_size):
-                end = start + self.batch_size
-                batch_x = self.x_train[start:end]
-                batch_y = self.y_train[start:end]
-
-                self.current_batch_expected = []
-                self.V = []
-                self.h = []
-
-                for x, y in zip(batch_x, batch_y):
-                    self.current_batch_expected.append(y)
-                    self.forward(x)
-                self.compute_deltas(batch_y)
+            for x, y in zip (self.x_train, self.y_train):
+                self.forward(x)
+                self.compute_deltas(y)
                 self.update_weights()
 
             if epoch % 10 == 0:
@@ -111,7 +91,7 @@ class NeuralNetwork:
                     self.h = []
                     self.d = []
 
-                    forward_result = self.forward(test_sample)[0][-1]
+                    forward_result = self.forward(test_sample)
                     y_pred = np.argmax(forward_result)
 
                     if y_pred == test_target:
