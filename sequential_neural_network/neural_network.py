@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
 from typing import List
-from collections import defaultdict
 
 def _sigmoid(z: np.ndarray) -> np.ndarray:
     z = np.clip(z, -100, 100)
@@ -29,7 +28,7 @@ class NeuralNetwork:
     lr: float
 
     @classmethod
-    def initialize(cls, input_size: int, hidden_layer_sizes: List[int], output_size:int, eta: float) -> "NeuralNetwork":
+    def initialize(cls, input_size: int, hidden_layer_sizes: List[int], output_size:int, lr: float) -> "NeuralNetwork":
         weights = []
         previous_size = input_size
         for h_size in hidden_layer_sizes:
@@ -45,7 +44,7 @@ class NeuralNetwork:
             V=[],
             h=[],
             d=[],
-            lr=eta,
+            lr=lr,
         )
 
     def forward(self, x: np.ndarray) -> np.ndarray:
@@ -120,22 +119,3 @@ class NeuralNetwork:
                         corrects += 1
 
                 print(f"Epoch: {epoch}: current accuracy: {corrects / len(y_test)}")
-
-
-# for i in reversed(range(len(self.V))):
-#     if i == 0:
-#         break
-#     if i == len(self.V) - 1:
-#         error = y - self.V[i]
-#         # print(f"error at layer {i}: {error}")
-#         delta = error * _sigmoid_derivative(self.V[i])
-#         # print(f"delta at layer {i}: {delta}")
-#         self.d.append(delta)
-#     else:
-#         next_weights = self.w[i]  # weights from this layer to next
-#         next_delta = self.d[-1]  # delta from the next layer (we are appending in reverse order)
-#         error = next_weights.T @ next_delta
-#         # print(f"error at layer {i}: {error}")
-#         delta = error[:-1] * _sigmoid_derivative(self.h[i - 1])
-#         # print(f"delta at layer {i}: {delta}")
-#         self.d.append(delta)
