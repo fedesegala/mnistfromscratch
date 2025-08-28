@@ -64,12 +64,8 @@ class NeuralNetwork:
             parallel_h = self.h[input_sample_idx]
             parallel_v = self.V[input_sample_idx]
 
-            jobs.append((parallel_h, parallel_v, self.w, sample_target))
 
-        with Pool() as pool:
-            computed_deltas = pool.starmap(compute_single_delta_task, jobs)
-
-        for i, computed_delta in enumerate(computed_deltas):
+            computed_delta = compute_single_delta_task(parallel_h, parallel_v, self.w, sample_target)
             self.d.append([d for d in reversed(computed_delta)])
 
         return self.d

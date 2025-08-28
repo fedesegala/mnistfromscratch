@@ -10,20 +10,22 @@ def main():
 
     x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.5, random_state=42)
 
-    nn = NeuralNetwork.initialize(
-        input_size=64,
-        hidden_layer_sizes=[50,20,15],
-        output_size=10,
-        lr=0.01,
-        batch_size=20
-    )
+    # DIGITS
+    # nn = NeuralNetwork.initialize(
+    #     input_size=64,
+    #     hidden_layer_sizes=[100],
+    #     output_size=10,
+    #     lr=0.01,
+    #     # batch_size=100,
+    # )
 
+    # IRIS
     nn = NeuralNetwork.initialize(
         input_size=4,
-        hidden_layer_sizes=[10],
+        hidden_layer_sizes=[100],
         output_size=3,
         lr=0.01,
-        batch_size=150,
+        # batch_size=len(x_train),
     )
 
     nn.train(
@@ -33,7 +35,6 @@ def main():
         y_train=y_train,
         y_test=y_test,
     )
-
 
 
 if __name__ == "__main__":
