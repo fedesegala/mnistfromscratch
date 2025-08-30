@@ -6,16 +6,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def main():
-    print("Downloading MNIST dataset")
-    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    X, Y = np.array(mnist["data"], dtype=np.float64), mnist["target"].astype(int)
-    X /= 255.0
+    # print("Downloading MNIST dataset")
+    # mnist = fetch_openml('mnist_784', version=1, as_frame=False)
+    # X, Y = np.array(mnist["data"], dtype=np.float64), mnist["target"].astype(int)
+    # X /= 255.0
 
-    # data = load_digits()
-    # X = data.data
-    # Y = data.target
+    data = load_digits()
+    X = data.data
+    Y = data.target
+    Y = data.target
 
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.7, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 
     print(f"x_train shape: {x_train.shape}")
     # DIGITS
@@ -23,8 +24,8 @@ def main():
         input_size=x_train.shape[-1],
         hidden_layer_sizes=[50,50,50],
         output_size=len(np.unique(y_test)),
-        lr=0.05,
-        momentum=0.9,
+        lr=0.02,
+        momentum=0.5,
     )
 
     nn_momentum.train(
@@ -40,7 +41,7 @@ def main():
         input_size=x_train.shape[-1],
         hidden_layer_sizes=[50,50,50],
         output_size=len(np.unique(y_test)),
-        lr=0.05,
+        lr=0.02,
         momentum=0
     )
 
