@@ -23,7 +23,7 @@ def compare_with_toy_datasets(toy_name = "digits"):
         input_size=x_train.shape[-1],
         hidden_layer_sizes=[50,50] if toy_name == "digits" else [5],
         output_size=len(np.unique(y_test)),
-        lr=0.01,
+        lr=0.03,
         momentum=0.75 if toy_name == "digits" else 0.8,
     )
 
@@ -40,7 +40,7 @@ def compare_with_toy_datasets(toy_name = "digits"):
         input_size=x_train.shape[-1],
         hidden_layer_sizes=[50,50] if toy_name == "digits" else [5],
         output_size=len(np.unique(y_test)),
-        lr=0.01,
+        lr=0.03,
         momentum=0
     )
 
@@ -78,7 +78,7 @@ def compare_with_mnist():
         input_size=x_train.shape[-1],
         hidden_layer_sizes=[50, 50],
         output_size=len(np.unique(y_test)),
-        lr=0.4,
+        lr=0.04,
         momentum=0.9
     )
 
@@ -172,4 +172,4 @@ if __name__ == "__main__":
     np.random.seed(42)
     compare_with_toy_datasets("iris")
     compare_with_toy_datasets("digits")
-    # compare_with_mnist()
+    compare_with_mnist()
