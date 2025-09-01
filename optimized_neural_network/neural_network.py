@@ -64,7 +64,7 @@ class NeuralNetwork:
     # this method shall not be used for training only for getting faster predictions
     def batch_forward(self, batch_x):
         for layer in self.w:
-            batch_x = np.vstack((batch_x, np.ones((1,batch_x.shape[-1]))))
+            batch_x = np.vstack((batch_x, -np.ones((1,batch_x.shape[-1]))))
             h_i = layer.dot(batch_x)
             batch_x = _sigmoid(h_i)
 
@@ -117,21 +117,6 @@ class NeuralNetwork:
                 self.forward(x)
                 self.compute_deltas(y)
                 self.update_weights()
-
-                if epoch == 0 and i % 200 == 0:
-                    corrects = 0
-                    for test_sample, test_target in zip(x_test[:1000], y_test[:1000]):
-                        self.V = []
-                        self.h = []
-                        self.d = []
-
-                        forward_result = self.forward(test_sample)
-                        y_pred = np.argmax(forward_result)
-
-                        if y_pred == test_target:
-                            corrects += 1
-
-                    self.test_loss.append(corrects/len(y_test[:1000]))
 
             if epoch % compute_stats_interval == 0:
                 y_pred_train = self.batch_forward(self.x_train.T)
