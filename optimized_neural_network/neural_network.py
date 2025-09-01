@@ -140,8 +140,8 @@ class NeuralNetwork:
                 train_loss = mean_squared_error(self.y_train, y_pred_train.T)
                 test_loss = mean_squared_error(self.y_test, y_pred_test.T)
 
-                y_pred_train = np.eye(10)[np.argmax(y_pred_train, axis=0)]
-                y_pred_test = np.eye(10)[np.argmax(y_pred_test, axis=0)]
+                y_pred_train = np.eye(n_classes)[np.argmax(y_pred_train, axis=0)]
+                y_pred_test = np.eye(n_classes)[np.argmax(y_pred_test, axis=0)]
 
                 train_acc = accuracy_score(self.y_train, y_pred_train)
                 test_acc = accuracy_score(self.y_test, y_pred_test)

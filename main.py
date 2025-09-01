@@ -8,11 +8,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def compare_with_toy_datasets(toy_name = "digits"):
-    # print("Downloading MNIST dataset")
-    # mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    # X, Y = np.array(mnist["data"], dtype=np.float64), mnist["target"].astype(int)
-    # X /= 255.0
-
     if toy_name == "digits":
         data = load_digits()
     else:
@@ -175,5 +170,6 @@ def plot_comparison(stats1, stats2, title1, title2):
 
 if __name__ == "__main__":
     np.random.seed(42)
+    compare_with_toy_datasets("iris")
     compare_with_toy_datasets("digits")
     # compare_with_mnist()
