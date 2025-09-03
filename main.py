@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
+import os
 
 def compare_on_toy_dataset(toy_name = "digits"):
     if toy_name == "digits":
@@ -82,7 +83,8 @@ def compare_on_toy_dataset(toy_name = "digits"):
             f"Small Model: hidden units {small_net.hidden_layer_sizes}",
             f"Medium Model: hidden units {medium_net.hidden_layer_sizes}",
             f"Large Model: hidden units {large_net.hidden_layer_sizes}",
-        ]
+        ],
+        file_title=f"{toy_name}_comparison.png"
     )
 
 def compare_with_mnist():
@@ -178,7 +180,8 @@ def compare_with_mnist():
             f"Medium Model: hidden units {medium_net.hidden_layer_sizes}",
             f"Large Model: hidden units {large_net.hidden_layer_sizes}",
             f"Multilayer Model: hidden units {multilayer_net.hidden_layer_sizes}"
-        ]
+        ],
+        file_title="MNIST_comparison.png"
     )
 
 def pruning_load_digits():
@@ -255,6 +258,7 @@ def pruning_load_digits():
         pruning_test_acc=test_acc,
         pruning_train_loss=train_loss,
         pruning_test_loss=test_loss,
+        file_title="Digits_pruning_comparison.png"
     )
 
 def pruning_mnist():
@@ -331,13 +335,15 @@ def pruning_mnist():
         pruning_test_acc=test_acc,
         pruning_train_loss=train_loss,
         pruning_test_loss=test_loss,
+        file_title="MNIST_pruning_comparison.png"
     )
 
 def plot_comparison(stats, titles,
                     pruning_train_acc=0,
                     pruning_test_acc=0,
                     pruning_train_loss=0,
-                    pruning_test_loss=0):
+                    pruning_test_loss=0,
+                    file_title=""):
     # Create an empty list to store all data
     data = []
 
@@ -420,12 +426,16 @@ def plot_comparison(stats, titles,
     # Adjust layout to avoid overlap
     plt.tight_layout()
 
+    # Save the plot to a file if filetitle is provided
+    if file_title:
+        plt.savefig(f"./results/{file_title}", dpi=300)
     # Show the plot
     plt.show()
 
 
 if __name__ == "__main__":
     np.random.seed(42)
+    os.mkdir("./results")
     compare_on_toy_dataset("iris")
     compare_on_toy_dataset("digits")
     compare_with_mnist()
