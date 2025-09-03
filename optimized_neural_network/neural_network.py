@@ -136,8 +136,6 @@ class NeuralNetwork:
             v = np.append(self.V[m - 1], -1)
             self.w[m - 1] += self.lr * np.outer(self.d[m - 1], v)
 
-
-
     def train(self, epochs, x_train, x_test, y_train, y_test, compute_stats_interval: int = 2):
         """
         Performs the training of the network on the given training set for a number of epochs printing training statistics
@@ -270,7 +268,6 @@ class NeuralNetwork:
                 # performance degraded too much, restore previous state and stop pruning
                 self.w = [np.copy(w) for w in w_backup]
                 self.hidden_layer_sizes = hsize_backup
-                self.previous_update = []
                 break
 
         return history
