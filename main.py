@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-def compare_with_toy_datasets(toy_name = "digits"):
+def compare_on_toy_dataset(toy_name = "digits"):
     if toy_name == "digits":
         data = load_digits()
     else:
@@ -19,16 +19,30 @@ def compare_with_toy_datasets(toy_name = "digits"):
 
     print(f"x_train shape: {x_train.shape}")
     # DIGITS
-    nn_momentum = OptimizedNeuralNetwork.initialize(
+    small_net = OptimizedNeuralNetwork.initialize(
         input_size=x_train.shape[-1],
-        hidden_layer_sizes=[50,50] if toy_name == "digits" else [5],
+        hidden_layer_sizes=[20,20] if toy_name == "digits" else [2],
         output_size=len(np.unique(y_test)),
         lr=0.03,
-        momentum=0.75 if toy_name == "digits" else 0.8,
     )
 
-    nn_momentum.train(
-        epochs=30,
+    medium_net = OptimizedNeuralNetwork.initialize(
+        input_size=x_train.shape[-1],
+        hidden_layer_sizes=[50, 50] if toy_name == "digits" else [5],
+        output_size=len(np.unique(y_test)),
+        lr=0.03,
+    )
+
+    large_net = OptimizedNeuralNetwork.initialize(
+        input_size=x_train.shape[-1],
+        hidden_layer_sizes=[100, 100] if toy_name == "digits" else [20],
+        output_size=len(np.unique(y_test)),
+        lr=0.03,
+    )
+
+    epochs_number = 30 if toy_name == "digits" else 100
+    small_net.train(
+        epochs=epochs_number,
         x_train=x_train,
         x_test=x_test,
         y_train=y_train,
@@ -36,16 +50,8 @@ def compare_with_toy_datasets(toy_name = "digits"):
         compute_stats_interval=1
     )
 
-    nn_non_momentum = OptimizedNeuralNetwork.initialize(
-        input_size=x_train.shape[-1],
-        hidden_layer_sizes=[50,50] if toy_name == "digits" else [5],
-        output_size=len(np.unique(y_test)),
-        lr=0.03,
-        momentum=0
-    )
-
-    nn_non_momentum.train(
-        epochs=30,
+    medium_net.train(
+        epochs=epochs_number,
         x_train=x_train,
         x_test=x_test,
         y_train=y_train,
@@ -53,15 +59,26 @@ def compare_with_toy_datasets(toy_name = "digits"):
         compute_stats_interval=1
     )
 
-    momentum_stats = nn_momentum.stats
-    non_momentum_stats = nn_non_momentum.stats
+    large_net.train(
+        epochs=epochs_number,
+        x_train=x_train,
+        x_test=x_test,
+        y_train=y_train,
+        y_test=y_test,
+        compute_stats_interval=1
+    )
+
+    stats_small = small_net.stats
+    stats_medium = medium_net.stats
+    stats_large = large_net.stats
 
     plot_comparison(
-        momentum_stats,
-        non_momentum_stats,
-        f"Model: lr{nn_momentum.lr}, alpha: {nn_momentum.momentum}",
-        f"Model: lr{nn_momentum.lr}, alpha: {nn_non_momentum.momentum}",
-
+        stats_small,
+        stats_medium,
+        stats_large,
+        f"Small Model: hidden units {small_net.hidden_layer_sizes}",
+        f"Medium Model: hidden units {medium_net.hidden_layer_sizes}",
+        f"Large Model: hidden units {large_net.hidden_layer_sizes}"
     )
 
 def compare_with_mnist():
@@ -118,8 +135,42 @@ def compare_with_mnist():
         f"Model: lr{nn_momentum.lr}, alpha: {nn_non_momentum.momentum}",
     )
 
+def pruning_load_digits():
+    data = load_digits()
+    X = data.data
+    Y = data.target
 
-def plot_comparison(stats1, stats2, title1, title2):
+    n_classes = len(np.unique(Y))
+
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
+
+    print(f"x_train shape: {x_train.shape}")
+    # DIGITS
+    nn = OptimizedNeuralNetwork.initialize(
+        input_size=x_train.shape[-1],
+        hidden_layer_sizes=[100],
+        output_size=len(np.unique(y_test)),
+        lr=0.01,
+        momentum=0
+    )
+
+    nn.train(
+        epochs=50,
+        x_train=x_train,
+        x_test=x_test,
+        y_train=y_train,
+        y_test=y_test,
+        compute_stats_interval=1
+    )
+
+    nn.prune_iterative(epsilon=0.001, max_prunes=80)
+
+    print(nn.hidden_layer_sizes)
+
+    print(nn.compute_stats_on_sample(x_train, nn.one_hot_encode(y_train)))
+    print(nn.compute_stats_on_sample(x_test, nn.one_hot_encode(y_test)))
+
+def plot_comparison(stats1, stats2, stats3, title1, title2, title3):
     epochs = [s['epoch'] for s in stats1]
 
     plt.figure(figsize=(18, 6))  # Increased figure size for 4 subplots
@@ -128,6 +179,7 @@ def plot_comparison(stats1, stats2, title1, title2):
     plt.subplot(221)
     plt.plot(epochs, [s['train_acc'] for s in stats1], label=f'{title1} - Train Acc.')
     plt.plot(epochs, [s['train_acc'] for s in stats2], label=f'{title2} - Train Acc.')
+    plt.plot(epochs, [s['train_acc'] for s in stats3], label=f'{title3} - Train Acc.')
     plt.title('Training Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
@@ -138,6 +190,7 @@ def plot_comparison(stats1, stats2, title1, title2):
     plt.subplot(222)
     plt.plot(epochs, [s['train_loss'] for s in stats1], label=f'{title1} - Train Loss')
     plt.plot(epochs, [s['train_loss'] for s in stats2], label=f'{title2} - Train Loss')
+    plt.plot(epochs, [s['train_loss'] for s in stats3], label=f'{title3} - Train Loss')
     plt.title('Training Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
@@ -148,6 +201,7 @@ def plot_comparison(stats1, stats2, title1, title2):
     plt.subplot(223)
     plt.plot(epochs, [s['test_acc'] for s in stats1], label=f'{title1} - Test Acc.')
     plt.plot(epochs, [s['test_acc'] for s in stats2], label=f'{title2} - Test Acc.')
+    plt.plot(epochs, [s['test_acc'] for s in stats3], label=f'{title3} - Test Acc.')
     plt.title('Test Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
@@ -156,9 +210,9 @@ def plot_comparison(stats1, stats2, title1, title2):
 
     # 4. Test Loss
     plt.subplot(224)
-    plt.subplot(224)
     plt.plot(epochs, [s['test_loss'] for s in stats1], label=f'{title1} - Test Loss')
     plt.plot(epochs, [s['test_loss'] for s in stats2], label=f'{title2} - Test Loss')
+    plt.plot(epochs, [s['test_loss'] for s in stats3], label=f'{title3} - Test Loss')
     plt.title('Test Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
@@ -170,6 +224,7 @@ def plot_comparison(stats1, stats2, title1, title2):
 
 if __name__ == "__main__":
     np.random.seed(42)
-    compare_with_toy_datasets("iris")
-    compare_with_toy_datasets("digits")
-    compare_with_mnist()
+    compare_on_toy_dataset("iris")
+    compare_on_toy_dataset("digits")
+    # compare_with_mnist()
+    # pruning_load_digits()

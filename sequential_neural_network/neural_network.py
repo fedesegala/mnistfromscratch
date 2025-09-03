@@ -1,13 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 from typing import List
-
-def _sigmoid(z: np.ndarray) -> np.ndarray:
-    z = np.clip(z, -100, 100)
-    return 1 / (1 + np.exp(-z))
-def _sigmoid_derivative(z: np.ndarray) -> np.ndarray:
-    sigmoid_output = _sigmoid(z)
-    return sigmoid_output * (1 - sigmoid_output)
+from activations.sigmoid import sigmoid, sigmoid_derivative
 
 def one_hot_encode(target, n_classes):
     zeros = np.zeros(n_classes)
@@ -57,7 +51,7 @@ class NeuralNetwork:
             x = np.append(x, -1.0)
             h_i = layer.dot(x) # z = w*x
             self.h.append(h_i)
-            x = _sigmoid(h_i)
+            x = sigmoid(h_i)
             self.V.append(x)
 
         return self.V[-1]
@@ -70,10 +64,10 @@ class NeuralNetwork:
             local_d = np.array([])
             if m == len(self.V) - 1:    # update hidden to output weights
                 for i,V_m_i in enumerate(self.V[m]):
-                    local_d = np.append(local_d, _sigmoid_derivative(self.h[m-1][i]) * (y[i] - V_m_i))
+                    local_d = np.append(local_d, sigmoid_derivative(self.h[m-1][i]) * (y[i] - V_m_i))
             else:
                 for i, V_m_i in enumerate(self.V[m]):
-                    delta_hat_i = _sigmoid_derivative(self.h[m-1][i])
+                    delta_hat_i = sigmoid_derivative(self.h[m-1][i])
                     s = 0
                     previous_delta = self.d[-1]
                     previous_layer_weights = self.w[m][:,i]
