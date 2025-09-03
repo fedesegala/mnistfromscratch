@@ -426,8 +426,8 @@ def plot_comparison(stats, titles,
 
 if __name__ == "__main__":
     np.random.seed(42)
-    # compare_on_toy_dataset("iris")
-    # compare_on_toy_dataset("digits")
+    compare_on_toy_dataset("iris")
+    compare_on_toy_dataset("digits")
     compare_with_mnist()
     pruning_load_digits()
     pruning_mnist()
