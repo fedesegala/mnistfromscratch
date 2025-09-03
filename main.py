@@ -435,7 +435,7 @@ def plot_comparison(stats, titles,
 
 if __name__ == "__main__":
     np.random.seed(42)
-    os.mkdir("./results") if not os.path.exists("./results") else None
+    os.makedirs("./results", exist_ok=True)
     print("Comparing on toy dataset: IRIS")
     compare_on_toy_dataset("iris")
     print("Comparing on toy dataset: DIGITS")
@@ -444,5 +444,4 @@ if __name__ == "__main__":
     compare_with_mnist()
     print("Pruning on DIGITS dataset")
     pruning_load_digits()
-    print("Pruning on MNIST dataset")
     pruning_mnist()
