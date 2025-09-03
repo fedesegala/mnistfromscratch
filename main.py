@@ -73,7 +73,6 @@ def compare_on_toy_dataset(toy_name = "digits"):
     stats_large = large_net.stats
 
     plot_comparison(
-        "Model size comparison on dataset: " + toy_name,
         [
             stats_small,
             stats_medium,
@@ -168,7 +167,6 @@ def compare_with_mnist():
     stats_multi = multilayer_net.stats
 
     plot_comparison(
-        "Model size comparison on MNIST dataset",
         [
             stats_small,
             stats_medium,
