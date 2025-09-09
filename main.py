@@ -261,83 +261,6 @@ def pruning_load_digits():
         file_title="Digits_pruning_comparison.png"
     )
 
-def pruning_mnist():
-    print("Downloading MNIST dataset")
-    mnist = fetch_openml('mnist_784', version=1, as_frame=False)
-    X, Y = np.array(mnist["data"], dtype=np.float64), mnist["target"].astype(int)
-    X /= 255.0
-
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.7, random_state=42)
-
-    print(f"x_train shape: {x_train.shape}")
-
-    initial_model_size = 100
-
-    # DIGITS
-    nn = OptimizedNeuralNetwork.initialize(
-        input_size=x_train.shape[-1],
-        hidden_layer_sizes=[initial_model_size],
-        output_size=len(np.unique(y_test)),
-        lr=0.01,
-    )
-
-    nn.train(
-        epochs=5,
-        x_train=x_train,
-        x_test=x_test,
-        y_train=y_train,
-        y_test=y_test,
-        compute_stats_interval=1
-    )
-
-    stats_initial = nn.stats
-    initial_hidden_units = nn.hidden_layer_sizes[0]
-
-    history = nn.prune_iterative(epsilon=0.01, max_prunes=80)
-
-    print(nn.hidden_layer_sizes)
-
-    print(nn.compute_stats_on_sample(x_train, nn.one_hot_encode(y_train)))
-    print(nn.compute_stats_on_sample(x_test, nn.one_hot_encode(y_test)))
-
-    target_model_size = initial_model_size - len(history)
-    small_model = OptimizedNeuralNetwork.initialize(
-        input_size=x_train.shape[-1],
-        hidden_layer_sizes=[target_model_size],
-        output_size=len(np.unique(y_test)),
-        lr=0.01,
-    )
-
-    small_model.train(
-        epochs=5,
-        x_train=x_train,
-        x_test=x_test,
-        y_train=y_train,
-        y_test=y_test,
-        compute_stats_interval=1
-    )
-
-    stats_small = small_model.stats
-
-    train_loss, train_acc = nn.compute_stats_on_sample(x_train, nn.one_hot_encode(y_train))
-    test_loss, test_acc = nn.compute_stats_on_sample(x_test, nn.one_hot_encode(y_test))
-
-    plot_comparison(
-        [
-            stats_small,
-            stats_initial,
-        ],
-        [
-            f"Small model: hidden units {small_model.hidden_layer_sizes}",
-            f"Large model before pruning: hidden units [{initial_hidden_units}]",
-        ],
-        pruning_train_acc=train_acc,
-        pruning_test_acc=test_acc,
-        pruning_train_loss=train_loss,
-        pruning_test_loss=test_loss,
-        file_title="MNIST_pruning_comparison.png"
-    )
-
 def plot_comparison(stats, titles,
                     pruning_train_acc=0,
                     pruning_test_acc=0,
@@ -444,4 +367,3 @@ if __name__ == "__main__":
     compare_with_mnist()
     print("Pruning on DIGITS dataset")
     pruning_load_digits()
-    pruning_mnist()
