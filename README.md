@@ -10,6 +10,8 @@ The network has been tested on the following datasets:
 The goal is to understand the mechanics of neural networks without relying on high-level libraries like TensorFlow or PyTorch.
 
 ---
+## Project Presentation
+The folder `Project Presentation` contains both the slides and the video presentation of this project
 
 ## 🔹 1. Running the Project with **uv** (recommended)
 
@@ -53,4 +55,3 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
